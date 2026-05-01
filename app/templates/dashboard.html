@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenStack Health Dashboard — Catalyst Cloud</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0e1a;
+            color: #e0e6f0;
+            padding: 2rem;
+        }
+        header {
+            border-bottom: 1px solid #1e2d4a;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        h1 { color: #4fc3f7; font-size: 1.4rem; letter-spacing: 0.1em; }
+        .subtitle { color: #607d8b; font-size: 0.8rem; margin-top: 0.3rem; }
+        .sovereignty-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            color: #69f0ae;
+            border: 1px solid #1b5e20;
+            padding: 0.2rem 0.6rem;
+            border-radius: 2px;
+            margin-top: 0.5rem;
+        }
+        .region { margin-bottom: 2rem; }
+        .region-name {
+            color: #90caf9;
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+        .services { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .service-tile {
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            min-width: 150px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .service-tile:hover { transform: translateY(-2px); }
+        .service-name { font-size: 0.75rem; color: #90a4ae; margin-bottom: 0.4rem; }
+        .service-status { font-size: 1rem; font-weight: bold; }
+        .service-latency { font-size: 0.7rem; color: #546e7a; margin-top: 0.3rem; }
+        .service-error { font-size: 0.65rem; color: #ef9a9a; margin-top: 0.4rem; 
+                         max-width: 200px; word-break: break-word; }
+        .healthy { background: #0d2318; border-color: #1b5e20; }
+        .healthy .service-status { color: #69f0ae; }
+        .degraded { background: #2d1f00; border-color: #e65100; }
+        .degraded .service-status { color: #ffab40; }
+        .down { background: #2d0a0a; border-color: #b71c1c;
+                animation: pulse 1.5s infinite; }
+        .down .service-status { color: #ff5252; }
+        @keyframes pulse {
+            0%, 100% { border-color: #b71c1c; }
+            50% { border-color: #ff5252; }
+        }
+        .diagnosis-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #0d1a2d;
+            border: 1px solid #1565c0;
+            border-radius: 4px;
+            max-width: 860px;
+        }
+        .diagnosis-box h3 {
+            color: #4fc3f7;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+        .error-string {
+            font-size: 0.72rem;
+            color: #ff5252;
+            background: #1a0a0a;
+            padding: 0.6rem;
+            border-radius: 3px;
+            margin-bottom: 0.8rem;
+            word-break: break-word;
+            border-left: 2px solid #b71c1c;
+        }
+        .diagnosis-text { color: #b0bec5; font-size: 0.85rem; line-height: 1.6; }
+        .controls {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        button {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid #1565c0;
+            background: #0d1a2d;
+            color: #4fc3f7;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            transition: background 0.15s;
+        }
+        button:hover { background: #1565c0; }
+        button.danger { border-color: #b71c1c; color: #ff5252; }
+        button.danger:hover { background: #b71c1c; color: white; }
+        button.warning { border-color: #e65100; color: #ffab40; }
+        button.warning:hover { background: #e65100; color: white; }
+        .scenario-label {
+            font-size: 0.72rem;
+            color: #546e7a;
+            margin-left: 0.5rem;
+        }
+        .last-updated { color: #455a64; font-size: 0.7rem; margin-top: 2rem; }
+        .cove-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            color: #4fc3f7;
+            border: 1px solid #1565c0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 2px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        .metrics-link {
+            font-size: 0.72rem;
+            color: #546e7a;
+            margin-top: 0.5rem;
+        }
+        .metrics-link a { color: #4fc3f7; text-decoration: none; }
+        .metrics-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⬡ OPENSTACK HEALTH DASHBOARD
+            <span class="cove-badge">COVE AI POWERED</span>
+        </h1>
+        <div class="subtitle">
+            Catalyst Cloud · NZ Regions · nz-hlz-1 · nz-por-1 · nz-wlg-1
+        </div>
+        <div class="sovereignty-badge">
+            ✓ NZ SOVEREIGN — All data and AI inference remain on-shore
+        </div>
+        <div class="metrics-link">
+            Prometheus metrics: <a href="/metrics" target="_blank">/metrics</a>
+        </div>
+    </header>
+
+    <div class="controls">
+        <button onclick="refreshData()">↻ Refresh</button>
+        <button class="danger" onclick="simulateFailure('nz-hlz-1')">
+            ⚠ Nova Failure — nz-hlz-1
+        </button>
+        <button class="warning" onclick="simulateFailure('nz-por-1')">
+            ⚠ Neutron Failure — nz-por-1
+        </button>
+        <button class="danger" onclick="simulateFailure('nz-wlg-1')">
+            ⚠ Cinder Failure — nz-wlg-1
+        </button>
+        <button onclick="clearFailure()">✓ Clear All Failures</button>
+        <span class="scenario-label" id="active-scenario"></span>
+    </div>
+
+    <div id="dashboard"></div>
+    <div id="diagnosis"></div>
+    <div class="last-updated" id="timestamp"></div>
+
+    <script>
+        async function fetchHealth() {
+            const res = await fetch('/api/health');
+            return res.json();
+        }
+
+        function renderDashboard(data) {
+            const container = document.getElementById('dashboard');
+            container.innerHTML = '';
+            let downServices = [];
+
+            for (const [region, services] of Object.entries(data)) {
+                const regionDiv = document.createElement('div');
+                regionDiv.className = 'region';
+                regionDiv.innerHTML = `<div class="region-name">◈ ${region}</div>`;
+                const servicesDiv = document.createElement('div');
+                servicesDiv.className = 'services';
+
+                for (const [service, info] of Object.entries(services)) {
+                    if (info.status === 'down' || info.status === 'degraded') {
+                        downServices.push({ region, service, 
+                                           error: info.error, 
+                                           status: info.status });
+                    }
+                    const tile = document.createElement('div');
+                    tile.className = `service-tile ${info.status}`;
+                    tile.innerHTML = `
+                        <div class="service-name">${service.toUpperCase()}</div>
+                        <div class="service-status">${info.status.toUpperCase()}</div>
+                        <div class="service-latency">${info.latency_ms}ms</div>
+                        ${info.error ? 
+                          `<div class="service-error">${info.error.substring(0, 80)}...</div>` 
+                          : ''}
+                    `;
+                    servicesDiv.appendChild(tile);
+                }
+                regionDiv.appendChild(servicesDiv);
+                container.appendChild(regionDiv);
+            }
+
+            document.getElementById('timestamp').textContent =
+                `Last updated: ${new Date().toLocaleTimeString()} · 
+                 Auto-refresh: 10s · Data residency: NZ only`;
+
+            return downServices;
+        }
+
+        async function fetchDiagnosis(service, errorString) {
+            const res = await fetch('/api/diagnose', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ service, error_string: errorString })
+            });
+            const data = await res.json();
+
+            document.getElementById('diagnosis').innerHTML = `
+                <div class="diagnosis-box">
+                    <h3>🤖 COVE AI DIAGNOSIS — ${service.toUpperCase()} 
+                        (${data.model_used})</h3>
+                    ${errorString ? 
+                      `<div class="error-string">ERROR: ${errorString}</div>` : ''}
+                    <div class="diagnosis-text">${data.diagnosis}</div>
+                </div>
+            `;
+        }
+
+        async function refreshData() {
+            const data = await fetchHealth();
+            const issues = renderDashboard(data);
+            // Prioritise 'down' over 'degraded' for diagnosis
+            const critical = issues.find(i => i.status === 'down') || issues[0];
+            if (critical) {
+                await fetchDiagnosis(critical.service, critical.error);
+            } else {
+                document.getElementById('diagnosis').innerHTML = '';
+            }
+        }
+
+        async function simulateFailure(region) {
+            await fetch(`/api/simulate-failure/${region}`, { method: 'POST' });
+            document.getElementById('active-scenario').textContent = 
+                `Active failure: ${region}`;
+            await refreshData();
+        }
+
+        async function clearFailure() {
+            await fetch('/api/clear-failure', { method: 'POST' });
+            document.getElementById('active-scenario').textContent = '';
+            await refreshData();
+        }
+
+        refreshData();
+        setInterval(refreshData, 10000);
+    </script>
+</body>
+</html>
