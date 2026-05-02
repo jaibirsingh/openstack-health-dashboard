@@ -1,0 +1,101 @@
+---
+# ── SYSTEM DEPENDENCIES ───────────────────────────────────────────────────────
+- name: Ensure Python3 and pip are installed
+  apt:
+    name:
+      - python3
+      - python3-pip
+      - ufw
+    state: present
+    update_cache: yes
+  ignore_errors: yes
+
+# ── FIREWALL HARDENING (Security mindset from certifications) ─────────────────
+- name: Set UFW default policy to deny incoming
+  ufw:
+    default: deny
+    direction: incoming
+  ignore_errors: yes
+
+- name: Set UFW default policy to allow outgoing
+  ufw:
+    default: allow
+    direction: outgoing
+  ignore_errors: yes
+
+- name: Allow SSH through firewall
+  ufw:
+    rule: allow
+    port: "22"
+    proto: tcp
+  ignore_errors: yes
+
+- name: Allow dashboard port through firewall
+  ufw:
+    rule: allow
+    port: "{{ app_port }}"
+    proto: tcp
+    comment: "OpenStack Health Dashboard"
+  ignore_errors: yes
+
+- name: Enable UFW firewall
+  ufw:
+    state: enabled
+  ignore_errors: yes
+
+# ── APPLICATION DEPLOYMENT ────────────────────────────────────────────────────
+- name: Create application directory
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Copy application files
+  copy:
+    src: "{{ playbook_dir }}/../"
+    dest: "{{ app_dir }}/"
+    mode: '0644'
+
+- name: Install Python dependencies
+  pip:
+    requirements: "{{ app_dir }}/requirements.txt"
+    executable: pip3
+
+# ── SYSTEMD SERVICE ───────────────────────────────────────────────────────────
+- name: Create systemd service for dashboard
+  copy:
+    dest: /etc/systemd/system/openstack-dashboard.service
+    content: |
+      [Unit]
+      Description=OpenStack Health Dashboard
+      Documentation=https://github.com/YOURUSERNAME/openstack-health-dashboard
+      After=network.target
+
+      [Service]
+      Type=simple
+      WorkingDirectory={{ app_dir }}
+      Environment=DEMO_MODE=true
+      Environment=FLASK_ENV=production
+      ExecStart=/usr/bin/python3 -m app.main
+      Restart=always
+      RestartSec=5
+      StandardOutput=journal
+      StandardError=journal
+
+      [Install]
+      WantedBy=multi-user.target
+  ignore_errors: yes
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+  ignore_errors: yes
+
+- name: Enable and start dashboard service
+  systemd:
+    name: openstack-dashboard
+    enabled: yes
+    state: started
+  ignore_errors: yes

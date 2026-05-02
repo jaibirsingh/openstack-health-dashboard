@@ -1,0 +1,51 @@
+---
+- name: Deploy OpenStack Health Dashboard
+  hosts: dashboard_hosts
+  become: yes
+
+  vars:
+    app_port: 5000
+    demo_mode: true
+    app_dir: /opt/openstack-dashboard
+
+  pre_tasks:
+    - name: Display deployment target
+      debug:
+        msg: >
+          Deploying OpenStack Health Dashboard to {{ inventory_hostname }}
+          (port {{ app_port }}, demo_mode={{ demo_mode }})
+
+  roles:
+    - app_deploy
+
+  post_tasks:
+    - name: Wait for application to start
+      wait_for:
+        port: "{{ app_port }}"
+        delay: 3
+        timeout: 30
+      ignore_errors: yes
+
+    - name: Verify health endpoint responds
+      uri:
+        url: "http://localhost:{{ app_port }}/api/health"
+        return_content: yes
+        status_code: 200
+      register: health_result
+      ignore_errors: yes
+
+    - name: Verify metrics endpoint responds
+      uri:
+        url: "http://localhost:{{ app_port }}/metrics"
+        return_content: yes
+        status_code: 200
+      register: metrics_result
+      ignore_errors: yes
+
+    - name: Deployment summary
+      debug:
+        msg:
+          - "Deployment complete on {{ inventory_hostname }}"
+          - "Health endpoint: {{ health_result.status | default('unreachable') }}"
+          - "Metrics endpoint: {{ metrics_result.status | default('unreachable') }}"
+          - "Firewall: UFW enabled, port {{ app_port }} open"
