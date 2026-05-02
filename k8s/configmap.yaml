@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-config
+  namespace: default
+  labels:
+    app: openstack-dashboard
+data:
+  DEMO_MODE: "true"
+  FLASK_ENV: "production"
+  # In production: point these at real OpenStack endpoints
+  # OS_AUTH_URL: "https://api.nz-por-1.catalystcloud.io:5000/v3"
+  # OS_REGION_NAME: "nz-por-1"

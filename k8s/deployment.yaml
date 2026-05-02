@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openstack-dashboard
+  namespace: default
+  labels:
+    app: openstack-dashboard
+    version: "1.0"
+    managed-by: "kubectl"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: openstack-dashboard
+  template:
+    metadata:
+      labels:
+        app: openstack-dashboard
+    spec:
+      containers:
+        - name: dashboard
+          image: openstack-health-dashboard:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: dashboard-config
+          # Liveness: restart pod if app stops responding
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 3
+          # Readiness: only send traffic when app is ready
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"

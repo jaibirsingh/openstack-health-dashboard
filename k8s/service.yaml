@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: openstack-dashboard-service
+  namespace: default
+  labels:
+    app: openstack-dashboard
+spec:
+  selector:
+    app: openstack-dashboard
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: NodePort
+
