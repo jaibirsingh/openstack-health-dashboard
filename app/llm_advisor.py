@@ -3,8 +3,9 @@ import requests
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL = "llama3"
 
-# Fallback diagnoses when Ollama is not running
-# These are technically accurate — not placeholder text
+
+
+
 FALLBACK_DIAGNOSES = {
     "nova": (
         "RabbitMQ connection timeout indicates the AMQP messaging layer between "
@@ -71,7 +72,7 @@ def get_diagnosis(service: str, error_string: str = None) -> str:
     Falls back to hardcoded expert diagnosis if Ollama unavailable.
     """
     prompt = build_prompt(service, error_string)
-
+    print(f"DEBUG: Calling Ollama with service={service}")
     try:
         response = requests.post(
             OLLAMA_URL,
@@ -80,8 +81,9 @@ def get_diagnosis(service: str, error_string: str = None) -> str:
                 "prompt": prompt,
                 "stream": False
             },
-            timeout=15
+            timeout=40
         )
+        print(f"DEBUG: Ollama responded: {response.text[:200]}")
         if response.status_code == 200:
             result = response.json().get("response", "").strip()
             if result:

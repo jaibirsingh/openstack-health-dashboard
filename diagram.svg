@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1400">
+  <style>
+    .box { fill: white; stroke: black; stroke-width: 2; }
+    .text { font-family: Arial, sans-serif; font-size: 14px; fill: black; }
+    .title { font-weight: bold; font-size: 16px; }
+    .arrow { stroke: black; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+  </style>
+  
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="black" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="400" y="30" class="text title" text-anchor="middle">OpenStack Health Dashboard — Demo Flow</text>
+
+  <!-- Step 1: Dashboard -->
+  <rect x="200" y="60" width="400" height="60" class="box"/>
+  <text x="400" y="85" class="text title" text-anchor="middle">1. Dashboard Overview</text>
+  <text x="400" y="105" class="text" text-anchor="middle">3 NZ Regions × 5 OpenStack Services</text>
+
+  <line x1="400" y1="120" x2="400" y2="150" class="arrow"/>
+
+  <!-- Step 2: OpenStack Services -->
+  <rect x="200" y="150" width="400" height="80" class="box"/>
+  <text x="400" y="175" class="text title" text-anchor="middle">2. OpenStack Services Explained</text>
+  <text x="400" y="195" class="text" text-anchor="middle">Nova · Neutron · Cinder · Keystone · Glance</text>
+  <text x="400" y="215" class="text" text-anchor="middle">Compute · Network · Storage · Auth · Images</text>
+
+  <line x1="400" y1="230" x2="400" y2="260" class="arrow"/>
+
+  <!-- Step 3: Failure Simulation -->
+  <rect x="200" y="260" width="400" height="80" class="box"/>
+  <text x="400" y="285" class="text title" text-anchor="middle">3. Failure Simulation</text>
+  <text x="400" y="305" class="text" text-anchor="middle">Click failure → Real OpenStack error string</text>
+  <text x="400" y="325" class="text" text-anchor="middle">Local LLM (Ollama) diagnosis appears</text>
+
+  <line x1="400" y1="340" x2="400" y2="370" class="arrow"/>
+
+  <!-- Step 4: Ollama/Cove -->
+  <rect x="200" y="370" width="400" height="80" class="box"/>
+  <text x="400" y="395" class="text title" text-anchor="middle">4. AI Architecture (llm_advisor.py)</text>
+  <text x="400" y="415" class="text" text-anchor="middle">Ollama URL → localhost:11434</text>
+  <text x="400" y="435" class="text" text-anchor="middle">Production: swap to Catalyst Cove API</text>
+
+  <line x1="400" y1="450" x2="400" y2="480" class="arrow"/>
+
+  <!-- Step 5: GitLab CI/CD -->
+  <rect x="200" y="480" width="400" height="100" class="box"/>
+  <text x="400" y="505" class="text title" text-anchor="middle">5. GitLab CI/CD Pipeline (.gitlab-ci.yml)</text>
+  <text x="400" y="530" class="text" text-anchor="middle">Stage 1: Lint (flake8)</text>
+  <text x="400" y="550" class="text" text-anchor="middle">Stage 2: Test (pytest)</text>
+  <text x="400" y="570" class="text" text-anchor="middle">Stage 3: Build (docker build)</text>
+
+  <line x1="400" y1="580" x2="400" y2="610" class="arrow"/>
+
+  <!-- Step 6: Ansible -->
+  <rect x="200" y="610" width="400" height="80" class="box"/>
+  <text x="400" y="635" class="text title" text-anchor="middle">6. Ansible Deployment (deploy.yml)</text>
+  <text x="400" y="655" class="text" text-anchor="middle">Stage 4: Deploy (manual trigger)</text>
+  <text x="400" y="675" class="text" text-anchor="middle">UFW firewall · systemd · host config</text>
+
+  <line x1="400" y1="690" x2="400" y2="720" class="arrow"/>
+
+  <!-- Step 7: Kubernetes -->
+  <rect x="200" y="720" width="400" height="120" class="box"/>
+  <text x="400" y="745" class="text title" text-anchor="middle">7. Kubernetes Self-Healing</text>
+  <text x="400" y="770" class="text" text-anchor="middle">kubectl get pods → 2 replicas running</text>
+  <text x="400" y="790" class="text" text-anchor="middle">kubectl delete pod → Kill one pod</text>
+  <text x="400" y="810" class="text" text-anchor="middle">kubectl get pods -w → Watch auto-replacement</text>
+  <text x="400" y="830" class="text" text-anchor="middle">Service load balances during replacement</text>
+
+  <line x1="400" y1="840" x2="400" y2="870" class="arrow"/>
+
+  <!-- Step 8: Metrics -->
+  <rect x="200" y="870" width="400" height="80" class="box"/>
+  <text x="400" y="895" class="text title" text-anchor="middle">8. Observability (/metrics endpoint)</text>
+  <text x="400" y="915" class="text" text-anchor="middle">Prometheus-compatible format</text>
+  <text x="400" y="935" class="text" text-anchor="middle">openstack_service_up · latency_ms gauges</text>
+
+  <line x1="400" y1="950" x2="400" y2="980" class="arrow"/>
+
+  <!-- Step 9: Architecture -->
+  <rect x="200" y="980" width="400" height="100" class="box"/>
+  <text x="400" y="1005" class="text title" text-anchor="middle">9. Architecture (openstack_client.py)</text>
+  <text x="400" y="1025" class="text" text-anchor="middle">DEMO_MODE switchboard</text>
+  <text x="400" y="1045" class="text" text-anchor="middle">Mock data → Real OpenStack SDK swap</text>
+  <text x="400" y="1065" class="text" text-anchor="middle">Production-ready design pattern</text>
+
+  <line x1="400" y1="1080" x2="400" y2="1110" class="arrow"/>
+
+  <!-- Final Summary Box -->
+  <rect x="150" y="1110" width="500" height="120" class="box" style="fill: #f0f0f0;"/>
+  <text x="400" y="1135" class="text title" text-anchor="middle">Coverage Summary</text>
+  <text x="400" y="1160" class="text" text-anchor="middle">✓ OpenStack (5 services)  ✓ Python development  ✓ Live troubleshooting</text>
+  <text x="400" y="1180" class="text" text-anchor="middle">✓ GitLab CI/CD (4 stages)  ✓ Ansible deployment  ✓ Kubernetes orchestration</text>
+  <text x="400" y="1200" class="text" text-anchor="middle">✓ Docker containers  ✓ Prometheus monitoring  ✓ Data sovereignty (Cove)</text>
+  <text x="400" y="1220" class="text" text-anchor="middle">✓ Open source stack throughout</text>
+
+</svg>
